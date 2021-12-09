@@ -1,8 +1,6 @@
 /**
    BasicHTTPClient.ino
-
     Created on: 24.05.2015
-
 */
 
 #include <Arduino.h>
@@ -64,45 +62,37 @@ void loop() {
             Serial.println(error.f_str());
           } else {
             const char isExist = doc["status"];
-            if(isExist != 0) {
-              //Serial.println(pyload);
-              //Serial.println(doc["status"]);
-              //Serial.println(doc["protocol"]);
-              //Serial.println(doc["data"]);
-              decode_type_t protocol = (decode_type_t)doc["protocol"];
+            int intIsExist = (int)isExist;
+            
+            //if (intIsExist != 0) {
+              decode_type_t protocol = (decode_type_t)doc["operation"]["protocol"];
 
-              String stsize = doc["size"];
+              String stsize = doc["operation"]["size"];
               int intsize = stsize.toInt();
               uint16_t size = intsize;
 
-              String stvalue = doc["data"];
-              stvalue = stvalue.substring(2);
+              const char* data = doc["operation"]["data"];
+              char stvalue[16];
+              memcpy(stvalue, &data[2], strlen(data) - 2); // 先頭の0xを取り除き、別の配列にコピー
               Serial.println(stvalue);
-              char stvalueCharArray[16];
-              stvalue.toCharArray(stvalueCharArray,16);
-              unsigned long intvalue = strtoul(stvalueCharArray,NULL,16);
+              unsigned long intvalue = strtoul(stvalue, NULL, 16); // 渡された文字列が16進数として、文字列を数値に変換する。
               const uint32_t value = intvalue;
-              
-              //String stvalue = "0x1234";//doc["data"];
-              //int intvalue = stvalue.toInt();
-              //const uint32_t value = intvalue;
-              //const char* data = doc["status"];
-              //Serial.println(data);
+
               Serial.println("protocol");
               Serial.println(protocol);
               Serial.println("value");
               Serial.println(value);
               Serial.println("size");
               Serial.println(size);
-              
+
               //Remote関係
-              success = irsend.send(protocol, value, size); //送信
+              success = irsend.send(protocol, value, 32); //送信
               if (success) {
                 Serial.println("send success");
               }
-            } else {
-              Serial.println("no data");
-            }
+            //} else {
+            //  Serial.println("no data");
+            //}
           }
         } else {
           Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
