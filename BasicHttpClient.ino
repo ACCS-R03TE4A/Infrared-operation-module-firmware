@@ -61,10 +61,11 @@ void loop() {
           if (error) {
             Serial.println(error.f_str());
           } else {
-            const char isExist = doc["status"];
-            int intIsExist = (int)isExist;
-            
-            //if (intIsExist != 0) {
+
+
+            const int isExist = doc["status"];
+            Serial.println(isExist);
+            if (isExist != 0) {
               decode_type_t protocol = (decode_type_t)doc["operation"]["protocol"];
 
               String stsize = doc["operation"]["size"];
@@ -78,6 +79,7 @@ void loop() {
               unsigned long intvalue = strtoul(stvalue, NULL, 16); // 渡された文字列が16進数として、文字列を数値に変換する。
               const uint32_t value = intvalue;
 
+              
               Serial.println("protocol");
               Serial.println(protocol);
               Serial.println("value");
@@ -90,9 +92,9 @@ void loop() {
               if (success) {
                 Serial.println("send success");
               }
-            //} else {
-            //  Serial.println("no data");
-            //}
+            } else {
+              Serial.println("no data");
+            }
           }
         } else {
           Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
